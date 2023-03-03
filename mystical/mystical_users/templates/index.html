@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}
+Mystical users
+{% endblock %}
+
+{% block content %}
+   <h1>index page</h1>
+<form method="GET" id="schema-form" class="d-flex">
+    <ul>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="fullName" name="fullName" checked>
+          <label class="form-check-label" for="fullName">Full name</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="job" name="job" >
+          <label class="form-check-label" for="job">Job</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="email" name="email">
+          <label class="form-check-label" for="email">Email</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="domainName" name="domainName">
+          <label class="form-check-label" for="domainName">Domain Name</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="phoneNumber" name="phoneNumber">
+          <label class="form-check-label" for="phoneNumber">Phone number</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="companyName" name="companyName">
+          <label class="form-check-label" for="companyName">Company name</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="text" name="text">
+          <label class="form-check-label" for="text">Text</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="integer" name="integer">
+          <label class="form-check-label" for="integer">Integer</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="date" name="date">
+          <label class="form-check-label" for="date">Date</label>
+        </div>
+        <div><br>
+            <button class="btn btn-success" type="submit" data-bs-toggle="modal" data-bs-target="#exampleModal">Create schema</button>
+        </div>
+  </ul>
+</form>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#schema-form').submit(function(e) {
+        e.preventDefault();  // prevent the form from submitting normally
+        $.ajax({
+            type: 'GET',
+            url: '/create-schema/',
+            data: $(this).serialize(),
+            success: function(response) {
+                $('#result').html(response);  // display the response in the result div
+            }
+        });
+    });
+});
+</script>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Create schemas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="result"></div>
+                <form method="GET" class="d-flex">
+                    <input class="form-control me-2" type="text" name="n" placeholder="How many mystical users do you need to generate?">
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
