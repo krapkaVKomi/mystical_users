@@ -70,13 +70,14 @@ $(document).ready(function() {
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Create schemas</h5>
+                <h5 class="modal-title" id="exampleModalLabel">Generate mystical users</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" style="color: #006400;">
                 <div id="result"></div>
                 <form method="GET" class="d-flex">
-                    <input class="form-control me-2" type="text" name="n" placeholder="How many mystical users do you need to generate?">
+                    <input class="form-control me-2" type="text" name="count" placeholder="How many do you need to generate?">
+                    <button class="btn btn-success" type="submit">Create</button>
 
                 </form>
             </div>
