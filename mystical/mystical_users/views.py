@@ -33,8 +33,18 @@ def create_schema(request):
             selected_fields.append('date')
 
         # Code to create schema using selected_fields goes here
-        print(selected_fields)
         return HttpResponse('The scheme has been successfully created')
+
+
+def generate_users(request):
+    count = request.GET.get('count')
+    print(count)
+    html = ''
+    for user in range(int(count)):
+        html += '<div>{}</div>'.format(user)
+
+    # Return generated users as HTML response
+    return HttpResponse('Wait, we are creating CSV files')
 
 
 def user_login(request):

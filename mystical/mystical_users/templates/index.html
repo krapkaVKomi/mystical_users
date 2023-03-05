@@ -63,6 +63,23 @@ $(document).ready(function() {
         });
     });
 });
+
+$(document).ready(function() {
+    // Handle form submission for generating users
+    $('#generate-users-form').submit(function(e) {
+        e.preventDefault(); // Prevent form from submitting normally
+
+        $.ajax({
+            type: 'GET',
+            url: '/generate-users/',
+            data: $(this).serialize(), // Serialize form data
+            success: function(response) {
+                $('#result').html(response);  // display the response in the result div
+            }
+        });
+    });
+});
+
 </script>
 
 <!-- Modal -->
@@ -75,14 +92,15 @@ $(document).ready(function() {
             </div>
             <div class="modal-body" style="color: #006400;">
                 <div id="result"></div>
-                <form method="GET" class="d-flex">
+                <form id="generate-users-form" class="d-flex">
                     <input class="form-control me-2" type="text" name="count" placeholder="How many do you need to generate?">
                     <button class="btn btn-success" type="submit">Create</button>
-
                 </form>
+                <div id="generate-users-result"></div>
             </div>
         </div>
     </div>
 </div>
+
 {% endblock %}
 
