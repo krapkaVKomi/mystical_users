@@ -3,11 +3,18 @@ from django.http import HttpResponse
 from django.contrib.auth import login, logout
 from .forms import UserLoginForm
 from django.contrib.auth.decorators import login_required
+from .models import *
 
 
 @login_required
 def schemas(request):
-    return render(request, 'schemas.html')
+    schemes = Schema.objects.all()
+    context = {'schemes': schemes}
+    return render(request, 'schemas.html', context)
+
+
+def new_schema(request):
+    return render(request, 'new_schema.html')
 
 
 def create_schema(request):

@@ -4,7 +4,7 @@ from .models import *
 
 
 class SchemaAdmin(admin.ModelAdmin):
-    list_display = ('full_name', 'job', 'email', 'domain_name',
+    list_display = ('title', 'modified', 'full_name', 'job', 'email', 'domain_name',
                     'phone_number', 'company_name', 'text', 'integer', 'date')
 
 
