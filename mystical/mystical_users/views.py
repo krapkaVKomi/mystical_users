@@ -25,7 +25,9 @@ def schemas(request):
 
 def new_schema(request):
     if request.method == 'POST':
-        file_name = request.POST.get('fileName')
+        file_name = request.POST.get('fileName') # need create csv file
+        schema = Schema.object.create(title=file_name)
+
         column_separator = request.POST.get('columnSeparator')
         string_character = request.POST.get('stringCharacter')
         # Get the list of schema columns from the POST data
@@ -72,8 +74,6 @@ def new_schema(request):
         return JsonResponse({'message': 'Schema submitted successfully.'})
     else:
         return render(request, 'new_schema.html')
-
-
 
 
 def generate_users(request):
