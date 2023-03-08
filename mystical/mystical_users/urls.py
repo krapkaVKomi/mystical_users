@@ -7,5 +7,5 @@ urlpatterns = [
     path('login/', views.user_login, name='login'),
     path('logout/', views.user_logout, name='logout'),
     path('new-schema/', views.new_schema, name='new_schema'),
-    path('generate-users/', views.generate_users, name='generate-users'),
+    path('generate_csv/<int:schema_id>/', views.generate_csv, name='generate_csv'),
 ]

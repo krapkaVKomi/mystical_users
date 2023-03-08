@@ -6,9 +6,56 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from .models import *
 from django.http import JsonResponse
+from faker import Faker
+import random
 import csv
 import os
 import datetime
+
+
+faker = Faker()
+
+
+def data_generator(arr):
+    data_type = arr[1]
+    if data_type == 'Job':
+        data = faker.job()
+
+    elif data_type == 'Email':
+        data = faker.email()
+
+    elif data_type == 'Name':
+        data = faker.name()
+
+    elif data_type == 'Domain name':
+        data = faker.domain_name()
+
+    elif data_type == 'Phone number':
+        first = str(random.randint(100, 999))
+        second = str(random.randint(1, 888)).zfill(3)
+        last = (str(random.randint(1, 9998)).zfill(4))
+        data = '{}-{}-{}'.format(first, second, last)
+
+    elif data_type == 'Company name':
+        data = faker.word().title()
+
+    elif data_type == 'Text':
+        data = ''
+        for i in range(int(arr[2])):
+            paragraph = '   ' + faker.text() + '\n'
+            data = data + paragraph
+
+    elif data_type == 'Integer':
+        start = int(arr[2])
+        end = int(arr[3])
+        data = random.randint(start, end)
+
+    elif data_type == 'Date':
+        data = faker.date_of_birth()
+
+    else:
+        data = ''
+    return data
 
 
 def data_sort(collection, index):
@@ -25,18 +72,25 @@ def data_sort(collection, index):
     return collection
 
 
-def create_csv_file(file_name, data):
+def create_csv_file(file_name, data, number):
     titles = []
     for element in data:
         titles.append(element[0])
 
     # Create the file path for the CSV file
     file_path = os.path.join(settings.MEDIA_ROOT, f'{file_name}.csv')
-
     # Write the data to the CSV file
+
     with open(file_path, 'w', newline='') as csv_file:
         writer = csv.writer(csv_file, delimiter=";")
         writer.writerow(titles)
+        for rows in range(number):
+            info_for_table = []
+            for box in data:
+                text = data_generator(box)
+                info_for_table.append(text)
+
+            writer.writerow(info_for_table)
 
 
 @login_required
@@ -52,9 +106,6 @@ def new_schema(request):
                         + '_' + str(datetime.datetime.now().time()).replace(':', '.')
 
         file_path = os.path.join(settings.MEDIA_ROOT, f'{uniq_filename}.csv')
-        file = File.objects.create(title=uniq_filename, path=file_path)
-        print(file_path)
-        file_name = request.POST.get('fileName')
         column_separator = request.POST.get('columnSeparator')
         string_character = request.POST.get('stringCharacter')
         # Get the list of schema columns from the POST data
@@ -83,25 +134,44 @@ def new_schema(request):
             except IndexError:
                 collection.append(box)
 
+        file_name = request.POST.get('fileName')
+        schema = Schema.objects.create(title=file_name, file_path=file_path)
+
         collection = data_sort(collection=collection, index=-1)
-        create_csv_file(uniq_filename, collection)
+        for element in collection:
+            name = element[0]
+            type = element[1]
+            order = element[-1]
+            if len(element) == 3:
+                column = Column.objects.create(name=name, type=type, order=order, schema=schema)
+
+            elif len(element) == 4:
+                number = element[2]
+                column = Column.objects.create(name=name, type=type, number=number, order=order, schema=schema)
+
+            else:
+                start = element[2]
+                end = element[3]
+                column = Column.objects.create(name=name, type=type, start=start, end=end, order=order, schema=schema)
+
+        print(column.schema)
 
         # Save the schema to the database or do something else with it
         # Return a JSON response with a success message
-        return JsonResponse({'message': 'Schema submitted successfully.'})
+        print(f'/generate_csv/{column.schema.pk}/')
+        print(redirect(f'/generate_csv/{column.schema.pk}'))
+        return redirect(f'/generate_csv/{column.schema.pk}')
     else:
         return render(request, 'new_schema.html')
 
 
-def generate_users(request):
-    count = request.GET.get('count')
-    print(count)
-    html = ''
-    for user in range(int(count)):
-        html += '<div>{}</div>'.format(user)
-
-    # Return generated users as HTML response
-    return HttpResponse('Wait, we are creating CSV files')
+def generate_csv(request, schema_id):
+    schemes = Schema.objects.all()
+    context = {
+        'schemes': schemes,
+        'schema_id': schema_id,
+    }
+    return render(request, 'generate_csv.html', context)
 
 
 def user_login(request):

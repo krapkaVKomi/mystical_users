@@ -121,20 +121,31 @@ New schema
   
       console.log(selectedValue);
 
-      if (selectedValue === 'Integer' || selectedValue === 'Text') {
+      if (selectedValue === 'Integer') {
     fromToRow.innerHTML = `
       <div class="row g-3">
         <div class="col">
           <p>From</p>
-          <input type="number" class="form-control" placeholder="Start" value="start" name="${id}-start">
+          <input type="number" class="form-control" placeholder="Start" value="start" name="${id}-start" required>
         </div>
         <div class="col">
           <p>To</p>
-          <input type="number" class="form-control" placeholder="End" value="end" name="${id}-end">
+          <input type="number" class="form-control" placeholder="End" value="end" name="${id}-end" required>
         </div>
       </div>
     `;
-  } else {
+  }
+   else if (selectedValue === 'Text'){
+    fromToRow.innerHTML = `
+      <div class="row g-3">
+        <div class="col">
+          <p>Number</p>
+          <input type="number" class="form-control" placeholder="number" value="number" name="${id}-number" required>
+        </div>
+      </div>
+    `;
+    }
+   else {
     fromToRow.innerHTML = '';
   }
   });
