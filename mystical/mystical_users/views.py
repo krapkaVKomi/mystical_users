@@ -3,17 +3,40 @@ from django.http import HttpResponse
 from django.contrib.auth import login, logout
 from .forms import UserLoginForm
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 from .models import *
 from django.http import JsonResponse
 import csv
+import os
+import datetime
 
 
-def create_csv(file_name):
-    file_name = str(file_name) + '.csv'
-    with open(file_name, "w") as file:
-        writer = csv.writer(file, delimiter=";")
-        writer.writerow(['name', 'age'])
+def data_sort(collection, index):
+    for subarr in collection:
+        subarr[index] = int(subarr[index])
 
+    # Bubble sort based on last element
+    n = len(collection)
+    for i in range(n):
+        for j in range(n - i - 1):
+            if collection[j][index] > collection[j + 1][index]:
+                collection[j], collection[j + 1] = collection[j + 1], collection[j]
+
+    return collection
+
+
+def create_csv_file(file_name, data):
+    titles = []
+    for element in data:
+        titles.append(element[0])
+
+    # Create the file path for the CSV file
+    file_path = os.path.join(settings.MEDIA_ROOT, f'{file_name}.csv')
+
+    # Write the data to the CSV file
+    with open(file_path, 'w', newline='') as csv_file:
+        writer = csv.writer(csv_file, delimiter=";")
+        writer.writerow(titles)
 
 
 @login_required
@@ -25,9 +48,13 @@ def schemas(request):
 
 def new_schema(request):
     if request.method == 'POST':
-        file_name = request.POST.get('fileName') # need create csv file
-        schema = Schema.object.create(title=file_name)
+        uniq_filename = str(datetime.datetime.now().date()) \
+                        + '_' + str(datetime.datetime.now().time()).replace(':', '.')
 
+        file_path = os.path.join(settings.MEDIA_ROOT, f'{uniq_filename}.csv')
+        file = File.objects.create(title=uniq_filename, path=file_path)
+        print(file_path)
+        file_name = request.POST.get('fileName')
         column_separator = request.POST.get('columnSeparator')
         string_character = request.POST.get('stringCharacter')
         # Get the list of schema columns from the POST data
@@ -56,19 +83,9 @@ def new_schema(request):
             except IndexError:
                 collection.append(box)
 
-        print(collection)
-        # Convert last element to int
-        for subarr in collection:
-            subarr[-1] = int(subarr[-1])
+        collection = data_sort(collection=collection, index=-1)
+        create_csv_file(uniq_filename, collection)
 
-        # Bubble sort based on last element
-        n = len(collection)
-        for i in range(n):
-            for j in range(n - i - 1):
-                if collection[j][-1] > collection[j + 1][-1]:
-                    collection[j], collection[j + 1] = collection[j + 1], collection[j]
-
-        print(collection)
         # Save the schema to the database or do something else with it
         # Return a JSON response with a success message
         return JsonResponse({'message': 'Schema submitted successfully.'})

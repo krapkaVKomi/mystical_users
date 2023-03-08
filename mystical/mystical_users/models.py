@@ -4,7 +4,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 
 class File(models.Model):
     title = models.CharField(max_length=100, default='file', null=True)
-    file = models.FileField()
+    path = models.CharField(max_length=500, null=True)
 
     def __str__(self):
         return self.title
