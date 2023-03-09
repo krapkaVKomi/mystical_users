@@ -13,10 +13,7 @@ import os
 import datetime
 
 
-
-
-
-def data_generator(arr, faker):
+def data_generator(arr, faker=Faker()):
     data_type = arr[1]
     if data_type == 'Job':
         data = faker.job()
@@ -73,7 +70,6 @@ def data_sort(collection, index):
 
 
 def create_csv_file(data, number):
-    faker = Faker()
     titles = []
     for element in data:
         titles.append(element[0])
@@ -91,7 +87,7 @@ def create_csv_file(data, number):
         for rows in range(number):
             info_for_table = []
             for box in data:
-                text = data_generator(box, faker=faker)
+                text = data_generator(box)
                 info_for_table.append(text)
 
             writer.writerow(info_for_table)
@@ -109,11 +105,6 @@ def schemas(request):
 @login_required
 def new_schema(request):
     if request.method == 'POST':
-
-        column_separator = request.POST.get('columnSeparator')
-        string_character = request.POST.get('stringCharacter')
-        # Get the list of schema columns from the POST data
-        schema_columns = []
         data = request.POST.items()
         arr = []
         for key, value in data:
