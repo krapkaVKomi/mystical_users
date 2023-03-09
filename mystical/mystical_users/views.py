@@ -13,10 +13,10 @@ import os
 import datetime
 
 
-faker = Faker()
 
 
-def data_generator(arr):
+
+def data_generator(arr, faker):
     data_type = arr[1]
     if data_type == 'Job':
         data = faker.job()
@@ -73,7 +73,7 @@ def data_sort(collection, index):
 
 
 def create_csv_file(data, number):
-    print(data)
+    faker = Faker()
     titles = []
     for element in data:
         titles.append(element[0])
@@ -91,7 +91,7 @@ def create_csv_file(data, number):
         for rows in range(number):
             info_for_table = []
             for box in data:
-                text = data_generator(box)
+                text = data_generator(box, faker=faker)
                 info_for_table.append(text)
 
             writer.writerow(info_for_table)
