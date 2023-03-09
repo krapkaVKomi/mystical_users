@@ -72,10 +72,13 @@ def data_sort(collection, index):
     return collection
 
 
-def create_csv_file(file_name, data, number):
+def create_csv_file(data, number):
     titles = []
     for element in data:
         titles.append(element[0])
+
+    file_name = str(datetime.datetime.now().date()) \
+                + '_' + str(datetime.datetime.now().time()).replace(':', '.')
 
     # Create the file path for the CSV file
     file_path = os.path.join(settings.MEDIA_ROOT, f'{file_name}.csv')
@@ -92,6 +95,8 @@ def create_csv_file(file_name, data, number):
 
             writer.writerow(info_for_table)
 
+    return file_path
+
 
 @login_required
 def schemas(request):
@@ -100,12 +105,10 @@ def schemas(request):
     return render(request, 'schemas.html', context)
 
 
+@login_required
 def new_schema(request):
     if request.method == 'POST':
-        uniq_filename = str(datetime.datetime.now().date()) \
-                        + '_' + str(datetime.datetime.now().time()).replace(':', '.')
 
-        file_path = os.path.join(settings.MEDIA_ROOT, f'{uniq_filename}.csv')
         column_separator = request.POST.get('columnSeparator')
         string_character = request.POST.get('stringCharacter')
         # Get the list of schema columns from the POST data
@@ -135,7 +138,7 @@ def new_schema(request):
                 collection.append(box)
 
         file_name = request.POST.get('fileName')
-        schema = Schema.objects.create(title=file_name, file_path=file_path)
+        schema = Schema.objects.create(title=file_name)
 
         collection = data_sort(collection=collection, index=-1)
         for element in collection:
@@ -166,13 +169,45 @@ def new_schema(request):
         return render(request, 'new_schema.html')
 
 
+@login_required
 def generate_csv(request, schema_id):
-    schemes = Schema.objects.all()
-    context = {
-        'schemes': schemes,
-        'schema_id': schema_id,
-    }
-    return render(request, 'generate_csv.html', context)
+    current_columns = Column.objects.filter(schema_id=schema_id).all()
+    current_schema = Schema.objects.get(pk=schema_id)
+
+    if request.method == 'POST':
+        count = int(request.POST.get('count'))
+        data = []
+
+        for element in current_columns:
+            data.append(str(element.name))
+            data.append(str(element.type))
+
+            if str(element.type) == 'text':
+                data.append(str(element.number))
+
+            elif str(element.type) == 'Integer':
+                data.append(str(element.start))
+                data.append(str(element.end))
+
+            data.append(str(element.order))
+
+        print(data)
+        file_path = create_csv_file(data=data, number=count)
+
+        csv = File.objects.create(path=file_path, schema=current_schema)
+        # Generate CSV data here
+        data = {'message': 'CSV data generated successfully'}
+        return JsonResponse(data)
+
+    else:
+        files = File.objects.filter(schema_id=schema_id).all()
+
+        context = {
+            'files': files,
+            'current_schema': current_schema,
+            'current_columns': current_columns
+        }
+        return render(request, 'generate_csv.html', context)
 
 
 def user_login(request):

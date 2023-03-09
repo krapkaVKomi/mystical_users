@@ -73,11 +73,12 @@ New schema
     newRow.innerHTML = `
       <div class="col">
         <p>Column name</p>
-        <input class="form-control" value="Name" id="${id}-columnName" type="text" name="${id}-columnName" maxlength="50" required>
+        <input class="form-control" value="" id="${id}-columnName" type="text" name="${id}-columnName" maxlength="50" required>
       </div>
       <div class="col">
         <p>Type</p>
-        <select id="${id}-type" name="${id}-type" class="form-control">
+        <select id="${id}-type" name="${id}-type" class="form-control" required>
+          <option value="" selected disabled hidden>-----</option>
           <option value="Name">Name</option>
           <option value="Job">Job</option>
           <option value="Email">Email</option>
@@ -99,6 +100,8 @@ New schema
       <div class="col">
         <br><br><a style="color: red;" href="#" class="delete-link" data-rowid="${id}">Delete</a>
       </div>
+      <div class="col">
+    </div>
     `;
   
     // Append the new row to the container

@@ -1,21 +1,22 @@
 from django.db import models
 
 
-class File(models.Model):
-    title = models.CharField(max_length=100, default='file', null=True)
-    path = models.CharField(max_length=500, null=True)
-
-    def __str__(self):
-        return self.title
-
-
 class Schema(models.Model):
     title = models.CharField(max_length=100, verbose_name='Title', blank=True)
     modified = models.DateTimeField(auto_now_add=True, verbose_name='Modified')
-    file_path = models.CharField(max_length=500, verbose_name='File path', blank=True)
 
     def __str__(self):
         return self.title
+
+
+class File(models.Model):
+    path = models.CharField(max_length=500, null=True)
+    created = models.DateTimeField(auto_now_add=True, verbose_name='Created', null=True)
+    schema = models.ForeignKey(Schema, on_delete=models.CASCADE, blank=True)
+
+
+    def __str__(self):
+        return self.path
 
 
 class Column(models.Model):
