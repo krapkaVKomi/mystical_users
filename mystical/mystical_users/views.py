@@ -156,11 +156,12 @@ def new_schema(request):
 
         print(column.schema)
 
-        # Save the schema to the database or do something else with it
-        # Return a JSON response with a success message
-        print(f'/generate_csv/{column.schema.pk}/')
-        print(redirect(f'/generate_csv/{column.schema.pk}'))
-        return redirect(f'/generate_csv/{column.schema.pk}')
+        response_data = {
+            'success': True,
+            'column_schema_pk': column.schema.pk,
+        }
+        return JsonResponse(response_data)
+
     else:
         return render(request, 'new_schema.html')
 
