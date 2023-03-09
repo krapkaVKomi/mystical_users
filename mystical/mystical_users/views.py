@@ -73,6 +73,7 @@ def data_sort(collection, index):
 
 
 def create_csv_file(data, number):
+    print(data)
     titles = []
     for element in data:
         titles.append(element[0])
@@ -176,9 +177,10 @@ def generate_csv(request, schema_id):
 
     if request.method == 'POST':
         count = int(request.POST.get('count'))
-        data = []
+        collection = []
 
         for element in current_columns:
+            data = []
             data.append(str(element.name))
             data.append(str(element.type))
 
@@ -190,11 +192,11 @@ def generate_csv(request, schema_id):
                 data.append(str(element.end))
 
             data.append(str(element.order))
+            collection.append(data)
 
-        print(data)
-        file_path = create_csv_file(data=data, number=count)
+        file_path = create_csv_file(data=collection, number=count)
 
-        csv = File.objects.create(path=file_path, schema=current_schema)
+        csv = File.objects.create(path=file_path, schema=current_schema, file=file_path)
         # Generate CSV data here
         data = {'message': 'CSV data generated successfully'}
         return JsonResponse(data)
