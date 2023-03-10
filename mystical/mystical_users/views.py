@@ -11,6 +11,7 @@ import random
 import csv
 import os
 import datetime
+from django.views.decorators.http import require_POST
 
 
 def data_generator(arr, faker):
@@ -179,43 +180,50 @@ def new_schema(request):
 def generate_csv(request, schema_id):
     current_columns = Column.objects.filter(schema_id=schema_id).all()
     current_schema = Schema.objects.get(pk=schema_id)
+    files = File.objects.filter(schema_id=schema_id).all()
 
-    if request.method == 'POST':
-        count = int(request.POST.get('count'))
-        collection = []
+    context = {
+        'files': files,
+        'current_schema': current_schema,
+        'current_columns': current_columns
+    }
+    return render(request, 'generate_csv.html', context)
 
-        for element in current_columns:
-            data = []
-            data.append(str(element.name))
-            data.append(str(element.type))
 
-            if str(element.type) == 'text':
-                data.append(str(element.number))
+@login_required
+@require_POST
+def generate_csv_post(request, schema_id):
+    current_columns = Column.objects.filter(schema_id=schema_id).all()
+    current_schema = Schema.objects.get(pk=schema_id)
+    count = int(request.POST.get('count'))
+    collection = []
 
-            elif str(element.type) == 'Integer':
-                data.append(str(element.start))
-                data.append(str(element.end))
+    for element in current_columns:
+        data = []
+        data.append(str(element.name))
+        data.append(str(element.type))
 
-            data.append(str(element.order))
-            collection.append(data)
+        if str(element.type) == 'text':
+            data.append(str(element.number))
 
-        file_path = create_csv_file(data=collection, number=count)
-        csv_name = file_path.split('\\')[-1]
-        print(csv_name)
-        csv = File.objects.create(path=file_path, schema=current_schema, file=file_path, name=csv_name)
-        # Generate CSV data here
-        data = {'message': 'CSV data generated successfully'}
-        return JsonResponse(data)
+        elif str(element.type) == 'Integer':
+            data.append(str(element.start))
+            data.append(str(element.end))
 
-    else:
-        files = File.objects.filter(schema_id=schema_id).all()
+        data.append(str(element.order))
+        collection.append(data)
 
-        context = {
-            'files': files,
-            'current_schema': current_schema,
-            'current_columns': current_columns
-        }
-        return render(request, 'generate_csv.html', context)
+    file_path = create_csv_file(data=collection, number=count)
+    csv_name = os.path.split(file_path)[-1]
+    csv = File.objects.create(path=file_path, schema=current_schema, file=file_path, name=csv_name)
+
+    response_data = {
+        'file_path': csv.file.url,
+        'csv_name': csv_name,
+        'created_at': csv.created.isoformat()
+    }
+
+    return JsonResponse(response_data)
 
 
 def user_login(request):

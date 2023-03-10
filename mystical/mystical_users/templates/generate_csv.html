@@ -1,83 +1,74 @@
 {% extends 'base.html' %}
+
 {% block title %}
 Mystical users
 {% endblock %}
 
 {% block content %}
-
-
 <div class="container">
   <div class="row">
     <div class="col">
-
-        <h3>
-          {{ current_schema.title }}
-          <small class="text-muted"><a class="btn btn-link" href="/generate_csv/{{ current_schema.id }}" id="Edit">Edit scheme</a></small>
+      <h3>
+        {{ current_schema.title }}
+        <small class="text-muted">
+          <a class="btn btn-link" href="/generate_csv/{{ current_schema.id }}" id="Edit">Edit scheme</a>
+        </small>
       </h3>
     </div>
   </div>
   <div class="row">
-  <div class="col">
-    <table class="table">
-  <thead>
-    <tr>
-      <th scope="col">id</th>
-      <th scope="col">Column name</th>
-      <th scope="col">Column type</th>
-    </tr>
-  </thead>
-  <tbody>
-  {% for item in current_columns %}
-  <tr>
-     <th scope="row">{{ item.order }}</th>
-     <td>{{ item.name }}</td>
-     <td>{{ item.type }}</td>
-  </tr>
-{% endfor %}
-  </tbody>
-
-</table>
-  </div>
-  <div class="col">
-    col
-  </div>
-
+    <div class="col">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">id</th>
+            <th scope="col">Column name</th>
+            <th scope="col">Column type</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in current_columns %}
+          <tr>
+            <th scope="row">{{ item.order }}</th>
+            <td>{{ item.name }}</td>
+            <td>{{ item.type }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="col">
+      col
+    </div>
   </div>
 </div>
 
-  <div class="row">
-    <div class="col">
-        <h3>Data sets</h3>
-    </div>
-
-    <div class="col">
-    </div>
-
-    <div class="col">
-    </div>
-
-    <div class="col">
-    </div>
+<div class="row">
+  <div class="col">
+    <h3>Data sets</h3>
+  </div>
+  <div class="col">
+  </div>
+  <div class="col">
+  </div>
+  <div class="col">
+  </div>
   <form id="myForm" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="col">
       Rows:
-       <input type="number" class="form-control" value="start" name="count" style="width: 100px;" required>
+      <input type="number" class="form-control" value="start" name="count" style="width: 100px;" required>
     </div>
-
     <div class="col">
       <br>
       <button class="btn btn-success" type="submit">Generate data</button>
     </div>
   </form>
-     <div class="col">
-    </div>
-
-
-
+  <div class="col">
   </div>
+</div>
 
-<table class="table">
+<table class="table" id="second-table">
   <thead>
     <tr>
       <th scope="col">id</th>
@@ -87,54 +78,18 @@ Mystical users
     </tr>
   </thead>
   <tbody>
-  {% for item in files %}
-  <tr>
-     <th scope="row">{{ item.id }}</th>
-     <td>{{ item.created }}</td>
-     <td>{{ item.modified }}</td>
-      <td><a id="download-button-{{ item.id }}" class="btn btn-success">download {{ item.path }}</a></td>
-
-  </tr>
-{% endfor %}
+    {% for item in files %}
+    <tr>
+      <th scope="row">{{ item.id }}</th>
+      <td>{{ item.created }}</td>
+      <td>{{ item.modified }}</td>
+      <td><a id="download-button-{{ item.id }}" class="btn btn-success">download</a></td>
+    </tr>
+    {% endfor %}
   </tbody>
-
 </table>
 
 <script type="text/javascript">
-// Get the form element
-const form = document.getElementById('myForm');
-const schemaId = {{ current_schema.id }};
-
-// Attach a listener to the form's submit event
-form.addEventListener('submit', async (event) => {
-  event.preventDefault(); // Prevent the form from submitting normally
-
-  // Get the form data
-  const formData = new FormData(form);
-
-  try {
-    // Send the form data to the Django view using fetch()
-    const response = await fetch(`/generate_csv/${schemaId}/`, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'X-CSRFToken': '{{ csrf_token }}' // Include the CSRF token in the headers
-      }
-    });
-
-    // Handle the response from the Django view
-    if (response.ok) {
-      const data = await response.json();
-      console.log(data);
-    } else {
-      console.error(`Error ${response.status}: ${response.statusText}`);
-    }
-  } catch (error) {
-    console.error(error);
-  }
-});
-
-
 $(document).ready(function() {
   // Attach a click listener to each download button
   $('a[id^="download-button-"]').click(function() {
@@ -161,9 +116,60 @@ $(document).ready(function() {
     });
   });
 });
-
-
 </script>
+<!-- Add this script to the bottom of your HTML body -->
+<script>
+  // Get the form element
+  const form = document.getElementById('myForm');
+  const schemaId = {{ current_schema.id }};
+
+  // Attach a listener to the form's submit event
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault(); // Prevent the form from submitting normally
+
+    // Get the form data
+    const formData = new FormData(form);
+
+    try {
+      // Send the form data to the Django view using fetch()
+      const response = await fetch(`/generate_csv_post/${schemaId}/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}' // Include the CSRF token in the headers
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        // Append a new row to the second table
+        const newRow = `
+          <tr>
+            <th scope="row">${data.id}</th>
+            <td>${data.created}</td>
+            <td>${data.modified}</td>
+            <td><a id="download-button-${data.id}" class="btn btn-success">download</a></td>
+          </tr>
+        `;
+        $('#second-table tbody').append(newRow);
+      } else {
+        console.error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+    } catch (error) {
+      console.error(error);
+    }
+
+    // Create a new string regardless of whether the data is sent successfully or not
+    const newString = 'New string';
+    console.log(newString);
+
+    // Reset the form after submission
+    form.reset();
+  });
+</script>
+
 
 
 {% endblock %}
