@@ -218,11 +218,12 @@ def generate_csv_post(request, schema_id):
     csv = File.objects.create(path=file_path, schema=current_schema, file=file_path, name=csv_name)
 
     response_data = {
+        'file_id': csv.id,
         'file_path': csv.file.url,
         'csv_name': csv_name,
-        'created_at': csv.created.isoformat()
+        'created_at': csv.created
     }
-
+    print(response_data)
     return JsonResponse(response_data)
 
 

@@ -91,8 +91,8 @@ Mystical users
 
 <script type="text/javascript">
 $(document).ready(function() {
-  // Attach a click listener to each download button
-  $('a[id^="download-button-"]').click(function() {
+  // Attach a click listener to all download buttons (static and dynamic)
+  $(document).on('click', 'a[id^="download-button-"]', function() {
     // Get the file ID from the button ID
     var file_id = $(this).attr('id').split('-')[2];
 
@@ -116,6 +116,7 @@ $(document).ready(function() {
     });
   });
 });
+
 </script>
 <!-- Add this script to the bottom of your HTML body -->
 <script>
@@ -146,10 +147,11 @@ $(document).ready(function() {
         // Append a new row to the second table
         const newRow = `
           <tr>
-            <th scope="row">${data.id}</th>
-            <td>${data.created}</td>
-            <td>${data.modified}</td>
-            <td><a id="download-button-${data.id}" class="btn btn-success">download</a></td>
+            <th scope="row">${data.file_id}</th>
+            <td>${data.created_at}</td>
+            <td></td>
+
+            <td><a id="download-button-${data.file_id}" class="btn btn-success">download</a></td>
           </tr>
         `;
         $('#second-table tbody').append(newRow);
@@ -160,10 +162,6 @@ $(document).ready(function() {
     } catch (error) {
       console.error(error);
     }
-
-    // Create a new string regardless of whether the data is sent successfully or not
-    const newString = 'New string';
-    console.log(newString);
 
     // Reset the form after submission
     form.reset();
