@@ -89,6 +89,16 @@ Mystical users
   </tbody>
 </table>
 
+<div id="spinner-container" style="display:none;">
+  <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+  <div class="spinner-grow" style="width: 3rem; height: 3rem;" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+  <h2>почекай</h2>
+</div>
+
 <script type="text/javascript">
 $(document).ready(function() {
   // Attach a click listener to all download buttons (static and dynamic)
@@ -120,52 +130,57 @@ $(document).ready(function() {
 </script>
 <!-- Add this script to the bottom of your HTML body -->
 <script>
-  // Get the form element
-  const form = document.getElementById('myForm');
-  const schemaId = {{ current_schema.id }};
+ // Get the form element
+const form = document.getElementById('myForm');
+const schemaId = {{ current_schema.id }};
 
-  // Attach a listener to the form's submit event
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault(); // Prevent the form from submitting normally
+// Get the spinner container element
+const spinnerContainer = document.getElementById('spinner-container');
 
-    // Get the form data
-    const formData = new FormData(form);
+// Attach a listener to the form's submit event
+form.addEventListener('submit', async (event) => {
+  event.preventDefault(); // Prevent the form from submitting normally
 
-    try {
-      // Send the form data to the Django view using fetch()
-      const response = await fetch(`/generate_csv_post/${schemaId}/`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-          'X-CSRFToken': '{{ csrf_token }}' // Include the CSRF token in the headers
-        }
-      });
+  // Show the spinner
+  spinnerContainer.style.display = 'block';
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-        // Append a new row to the second table
-        const newRow = `
-          <tr>
-            <th scope="row">${data.file_id}</th>
-            <td>${data.created_at}</td>
-            <td></td>
+  // Get the form data
+  const formData = new FormData(form);
 
-            <td><a id="download-button-${data.file_id}" class="btn btn-success">download</a></td>
-          </tr>
-        `;
-        $('#second-table tbody').append(newRow);
-      } else {
-        console.error(`Error ${response.status}: ${response.statusText}`);
+  try {
+    // Send the form data to the Django view using fetch()
+    const response = await fetch(`/generate_csv_post/${schemaId}/`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}' // Include the CSRF token in the headers
       }
+    });
 
-    } catch (error) {
-      console.error(error);
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data);
+      // Append a new row to the second table
+      const newRow = `
+        <tr>
+          <th scope="row">${data.file_id}</th>
+          <td>${data.created_at}</td>
+          <td></td>
+          <td><a id="download-button-${data.file_id}" class="btn btn-success">download</a></td>
+        </tr>
+      `;
+      $('#second-table tbody').append(newRow);
+    } else {
+      console.log('Response not OK');
     }
+  } catch (error) {
+    console.log('Error:', error);
+  } finally {
+    // Hide the spinner
+    spinnerContainer.style.display = 'none';
+  }
+});
 
-    // Reset the form after submission
-    form.reset();
-  });
 </script>
 
 
