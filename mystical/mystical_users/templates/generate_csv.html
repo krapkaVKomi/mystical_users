@@ -92,6 +92,7 @@ Mystical users
      <th scope="row">{{ item.id }}</th>
      <td>{{ item.created }}</td>
      <td>{{ item.modified }}</td>
+      <td><a id="download-button-{{ item.id }}" class="btn btn-success">download {{ item.path }}</a></td>
 
   </tr>
 {% endfor %}
@@ -132,6 +133,35 @@ form.addEventListener('submit', async (event) => {
     console.error(error);
   }
 });
+
+
+$(document).ready(function() {
+  // Attach a click listener to each download button
+  $('a[id^="download-button-"]').click(function() {
+    // Get the file ID from the button ID
+    var file_id = $(this).attr('id').split('-')[2];
+
+    // Send an AJAX request to the download view
+    $.ajax({
+      url: '/download-file/' + file_id + '/',
+      method: 'GET',
+      xhrFields: {
+        responseType: 'blob'
+      },
+      success: function(data) {
+        var blob = new Blob([data], {type: 'text/csv'});
+        var link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = 'file_name.csv';  // Change the extension to .csv
+        link.click();
+      },
+      error: function(xhr, status, error) {
+        console.log('Error: ' + error);
+      }
+    });
+  });
+});
+
 
 </script>
 

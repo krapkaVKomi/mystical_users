@@ -7,4 +7,5 @@ urlpatterns = [
     path('logout/', views.user_logout, name='logout'),
     path('new-schema/', views.new_schema, name='new_schema'),
     path('generate_csv/<int:schema_id>/', views.generate_csv, name='generate_csv'),
+    path('download-file/<int:file_id>/', views.download_file, name='download-file'),
 ]

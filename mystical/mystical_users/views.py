@@ -96,6 +96,19 @@ def create_csv_file(data, number):
     return file_path
 
 
+def download_file(request, file_id):
+    file_obj = File.objects.get(id=file_id)
+    file_path = file_obj.file.path
+    file_name = file_obj.name
+
+    with open(file_path, 'rb') as f:
+        response = HttpResponse(f.read(), content_type='application/octet-stream')
+        response['Content-Disposition'] = 'attachment; filename="{}"'.format(file_name)
+        return response
+
+
+
+
 @login_required
 def schemas(request):
     schemes = Schema.objects.all()
@@ -187,8 +200,9 @@ def generate_csv(request, schema_id):
             collection.append(data)
 
         file_path = create_csv_file(data=collection, number=count)
-
-        csv = File.objects.create(path=file_path, schema=current_schema, file=file_path)
+        csv_name = file_path.split('\\')[-1]
+        print(csv_name)
+        csv = File.objects.create(path=file_path, schema=current_schema, file=file_path, name=csv_name)
         # Generate CSV data here
         data = {'message': 'CSV data generated successfully'}
         return JsonResponse(data)

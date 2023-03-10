@@ -11,8 +11,9 @@ class Schema(models.Model):
 
 class File(models.Model):
     path = models.CharField(max_length=500, null=True)
+    name = models.CharField(max_length=500, null=True)
     created = models.DateTimeField(auto_now_add=True, verbose_name='Created', null=True)
-    file = models.FileField(null=True)
+    file = models.FileField(null=True, upload_to='file')
     schema = models.ForeignKey(Schema, on_delete=models.CASCADE, blank=True)
 
     def __str__(self):
