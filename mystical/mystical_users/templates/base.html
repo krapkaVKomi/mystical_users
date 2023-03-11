@@ -28,33 +28,18 @@
     <nav class="my-2 my-md-0" style="color: rgba(0, 0, 0, 0.3);">
       <p>Hello, {{ request.user.username }} <a class="p-2 text-dark" href="{% url 'logout' %}">Logout</a></p>
     </nav>
-
-
     {% endif %}
-
   </div>
 </div>
 
-
     <div class="container">
-
-        {% if messages %}
-        {% for message in messages %}
-                {% if message.tags == 'error' %}
-                    <div class="alert alert-danger" role="alert">
-                        {{ message }}
-                    </div>
-                {% else %}
-                    <div class="alert alert-{{ message.tags }}" role="alert">
-                        {{ message }}
-                    </div>
-                {% endif %}
-
-        {% endfor %}
-        {% endif %}
-
         {% block content %}{% endblock %}
     </div>
+
+<footer class="my-5 pt-5 text-muted text-center text-small">
+    <br><br><br>
+    <p class="mb-1">lohvyn.oleh@gmail.com</p>
+</footer>
 
 </body>
 </html>

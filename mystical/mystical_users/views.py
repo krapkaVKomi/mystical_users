@@ -1,17 +1,18 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
-from django.contrib.auth import login, logout
-from .forms import UserLoginForm
-from django.contrib.auth.decorators import login_required
-from django.conf import settings
-from .models import *
-from django.http import JsonResponse
-from faker import Faker
+import datetime
 import random
 import csv
 import os
-import datetime
+
+from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
+from django.http import JsonResponse, HttpResponse
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from django.conf import settings
+from .forms import UserLoginForm
+from .models import *
+
+from faker import Faker
 
 
 def data_generator(arr, faker):
