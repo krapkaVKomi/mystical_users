@@ -29,7 +29,11 @@ Mystical users
      <th scope="row">{{ item.id }}</th>
      <td>{{ item.title }}</td>
      <td>{{ item.modified }}</td>
-      <td> <a href="/generate_csv/{{ item.id }}" id="Edit">Edit scheme</a> <a href="" id="Delete">Delete</a></td>
+      <td>
+      <a href="{% url 'generate_csv' item.id %}" id="Edit">Edit schema</a>
+      <a href="{% url 'delete_schema' item.id %}" id="Delete">Delete</a>
+      </td>
+
   </tr>
 {% endfor %}
   </tbody>

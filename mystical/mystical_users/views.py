@@ -108,8 +108,6 @@ def download_file(request, file_id):
         return response
 
 
-
-
 @login_required
 def schemas(request):
     schemes = Schema.objects.all()
@@ -122,27 +120,30 @@ def new_schema(request):
     if request.method == 'POST':
         data = request.POST.items()
         arr = []
+
+        # Extract row ID and value from each field in the request
         for key, value in data:
             id_key = str(key).split('row')[-1].split('-')[0]  # find row id
-            try:
-                id_key = int(id_key)
-            except:
+
+            # If row ID can't be converted to int, skip this field
+            if not id_key.isdigit():
                 continue
 
-            fild = [id_key, value]
-            arr.append(fild)
+            id_key = int(id_key)
+            field = [id_key, value]
+            arr.append(field)
 
         collection = []
         box = []
 
-        for i in range(0, len(arr)):
+        # Group values by row ID
+        for i in range(len(arr)):
             box.append(arr[i][1])
-            try:
-                if arr[i][0] != arr[i+1][0]:
-                    collection.append(box)
-                    box = []
-            except IndexError:
+
+            # If next tuple has different row ID or this is the last tuple, add current box to collection
+            if i == len(arr) - 1 or arr[i][0] != arr[i + 1][0]:
                 collection.append(box)
+                box = []
 
         file_name = request.POST.get('fileName')
         schema = Schema.objects.create(title=file_name)
@@ -223,6 +224,12 @@ def generate_csv_post(request, schema_id):
     }
 
     return JsonResponse(response_data)
+
+
+def delete_schema(request, schema_id):
+    schema = Schema.objects.get(id=schema_id)
+    schema.delete()
+    return redirect('schemas')
 
 
 def user_login(request):
