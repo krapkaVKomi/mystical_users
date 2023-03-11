@@ -164,8 +164,6 @@ def new_schema(request):
                 end = element[3]
                 column = Column.objects.create(name=name, type=type, start=start, end=end, order=order, schema=schema)
 
-        print(column.schema)
-
         response_data = {
             'success': True,
             'column_schema_pk': column.schema.pk,
@@ -223,7 +221,7 @@ def generate_csv_post(request, schema_id):
         'csv_name': csv_name,
         'created_at': csv.created
     }
-    print(response_data)
+
     return JsonResponse(response_data)
 
 

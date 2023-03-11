@@ -38,7 +38,6 @@ Mystical users
       </table>
     </div>
     <div class="col">
-      col
     </div>
   </div>
 </div>
@@ -61,7 +60,7 @@ Mystical users
     </div>
     <div class="col">
       <br>
-      <button class="btn btn-success" type="submit">Generate data</button>
+      <button id="submit-button" class="btn btn-success" type="submit">Generate data</button>
     </div>
   </form>
   <div class="col">
@@ -73,7 +72,7 @@ Mystical users
     <tr>
       <th scope="col">id</th>
       <th scope="col">Title</th>
-      <th scope="col">Modified</th>
+      <th scope="col">file status</th>
       <th scope="col">Actions</th>
     </tr>
   </thead>
@@ -82,22 +81,31 @@ Mystical users
     <tr>
       <th scope="row">{{ item.id }}</th>
       <td>{{ item.created }}</td>
-      <td>{{ item.modified }}</td>
+      <td><h6 style="color: green;">Ready for download</h6> </td>
       <td><a id="download-button-{{ item.id }}" class="btn btn-success">download</a></td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
 
+
 <div id="spinner-container" style="display:none;">
-  <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
-    <span class="visually-hidden">Loading...</span>
-  </div>
-  <div class="spinner-grow" style="width: 3rem; height: 3rem;" role="status">
-    <span class="visually-hidden">Loading...</span>
-  </div>
-  <h2>почекай</h2>
-</div>
+  <table class="table">
+  <thead>
+    <tr>
+      <th scope="col">id</th>
+      <th scope="col">
+        <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      </th>
+      <th scope="col">
+        <h6 style="color: red;">your file is still being created, please wait</h6>
+        </th>
+    </tr>
+  </thead>
+</table>
+    </div>
 
 <script type="text/javascript">
 $(document).ready(function() {
@@ -128,61 +136,69 @@ $(document).ready(function() {
 });
 
 </script>
-<!-- Add this script to the bottom of your HTML body -->
+
+
 <script>
- // Get the form element
-const form = document.getElementById('myForm');
-const schemaId = {{ current_schema.id }};
+  // Get the form element
+  const form = document.getElementById('myForm');
+  const schemaId = {{ current_schema.id }};
 
-// Get the spinner container element
-const spinnerContainer = document.getElementById('spinner-container');
+  // Get the spinner container element
+  const spinnerContainer = document.getElementById('spinner-container');
 
-// Attach a listener to the form's submit event
-form.addEventListener('submit', async (event) => {
-  event.preventDefault(); // Prevent the form from submitting normally
+  // Get the submit button element
+  const submitButton = document.getElementById('submit-button');
 
-  // Show the spinner
-  spinnerContainer.style.display = 'block';
+  // Attach a listener to the form's submit event
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault(); // Prevent the form from submitting normally
 
-  // Get the form data
-  const formData = new FormData(form);
+    // Disable the submit button
+    submitButton.disabled = true;
 
-  try {
-    // Send the form data to the Django view using fetch()
-    const response = await fetch(`/generate_csv_post/${schemaId}/`, {
-      method: 'POST',
-      body: formData,
-      headers: {
-        'X-CSRFToken': '{{ csrf_token }}' // Include the CSRF token in the headers
+    // Show the spinner
+    spinnerContainer.style.display = 'block';
+
+    // Get the form data
+    const formData = new FormData(form);
+
+    try {
+      // Send the form data to the Django view using fetch()
+      const response = await fetch(`/generate_csv_post/${schemaId}/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}' // Include the CSRF token in the headers
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        // Append a new row to the second table
+        const newRow = `
+          <tr>
+            <th scope="row">${data.file_id}</th>
+            <td>${data.created_at}</td>
+            <td><h6 style="color: green;">Ready for download</h6> </td>
+            <td><a id="download-button-${data.file_id}" class="btn btn-success">download</a></td>
+          </tr>
+        `;
+        $('#second-table tbody').append(newRow);
+      } else {
+        console.log('Response not OK');
       }
-    });
+    } catch (error) {
+      console.log('Error:', error);
+    } finally {
+      // Enable the submit button
+      submitButton.disabled = false;
 
-    if (response.ok) {
-      const data = await response.json();
-      console.log(data);
-      // Append a new row to the second table
-      const newRow = `
-        <tr>
-          <th scope="row">${data.file_id}</th>
-          <td>${data.created_at}</td>
-          <td></td>
-          <td><a id="download-button-${data.file_id}" class="btn btn-success">download</a></td>
-        </tr>
-      `;
-      $('#second-table tbody').append(newRow);
-    } else {
-      console.log('Response not OK');
+      // Hide the spinner
+      spinnerContainer.style.display = 'none';
     }
-  } catch (error) {
-    console.log('Error:', error);
-  } finally {
-    // Hide the spinner
-    spinnerContainer.style.display = 'none';
-  }
-});
-
+  });
 </script>
-
 
 
 {% endblock %}
