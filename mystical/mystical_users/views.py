@@ -97,6 +97,7 @@ def create_csv_file(data, number):
     return file_path
 
 
+@login_required
 def download_file(request, file_id):
     file_obj = File.objects.get(id=file_id)
     file_path = file_obj.file.path
@@ -226,6 +227,7 @@ def generate_csv_post(request, schema_id):
     return JsonResponse(response_data)
 
 
+@login_required
 def delete_schema(request, schema_id):
     schema = Schema.objects.get(id=schema_id)
     schema.delete()
