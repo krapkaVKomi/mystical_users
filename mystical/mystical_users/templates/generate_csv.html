@@ -107,8 +107,7 @@ Mystical users
 </table>
     </div>
 
-<script>
-
+<script type="text/javascript">
 $(document).ready(function() {
   // Attach a click listener to all download buttons (static and dynamic)
   $(document).on('click', 'a[id^="download-button-"]', function() {
@@ -134,7 +133,12 @@ $(document).ready(function() {
       }
     });
   });
+});
 
+</script>
+
+
+<script>
   // Get the form element
   const form = document.getElementById('myForm');
   const schemaId = {{ current_schema.id }};
@@ -194,10 +198,7 @@ $(document).ready(function() {
       spinnerContainer.style.display = 'none';
     }
   });
-});
-
 </script>
-
 
 
 {% endblock %}
